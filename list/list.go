@@ -2,6 +2,8 @@
 // the same interface as the standard "container/list" package.
 package list
 
+import "iter"
+
 // Element is an element of a linked list.
 type Element[T any] struct {
 	// Next and previous pointers in the doubly-linked list of elements.
@@ -222,5 +224,16 @@ func (l *List[T]) PushFrontList(other *List[T]) {
 	l.lazyInit()
 	for i, e := other.Len(), other.Back(); i > 0; i, e = i-1, e.Prev() {
 		l.insertValue(e.Value, &l.root)
+	}
+}
+
+// Elements iterates on the elements of the list.
+func (l *List[T]) Elements() iter.Seq[T] {
+	return func(yield func(T) bool) {
+		for e := l.Front(); e != nil; e = e.Next() {
+			if !yield(e.Value) {
+				return
+			}
+		}
 	}
 }
